@@ -1,7 +1,6 @@
 import { observer } from 'mobx-react-lite';
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Segment, Button } from 'semantic-ui-react';
+import { Container, Segment, Button, Divider } from 'semantic-ui-react';
 import { useStore } from '../../app/stores/store';
 import LoginForm from '../users/LoginForm';
 import RegisterForm from '../users/RegisterForm';
@@ -37,6 +36,15 @@ export default observer(function HomePage() {
                             onClick={() => modalStore.openModal(<RegisterForm />)} style={{ marginTop:"2em" }}>
                                 Register!
                             </button>
+                            <Divider horizontal>Or</Divider>
+                            <Button
+                                loading={userStore.fbLoading}
+                                size='medium'
+                                inverted
+                                color='facebook'
+                                content='Login with Facebook'
+                                onClick={userStore.facebookLogin}>
+                            </Button>
                         </>
                     )}
                 </Container>

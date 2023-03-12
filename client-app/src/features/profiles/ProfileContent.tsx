@@ -8,12 +8,13 @@ import ProfileRides from './ProfileRides';
 import ProfileFollowings from './ProfileFollowings';
 import ProfilePhotos from './ProfilePhotos';
 import ProfileRatings from './ProfileRatings';
+import ProfileLegalPapers from './ProfileLegalPapers';
 
 interface Props {
     profile : Profile;
 }
 
-export default observer(function ProfileContent({profile}: Props) {
+export default observer(function ProfileContent({ profile }: Props) {
     const {profileStore} = useStore();
     
     const panes = [
@@ -22,6 +23,7 @@ export default observer(function ProfileContent({profile}: Props) {
         {menuItem: 'Rides', render: () => <ProfileRides />},
         {menuItem: 'Followers', render: () => <ProfileFollowings />},
         {menuItem: 'Following', render: () => <ProfileFollowings />},
+        {menuItem: 'Legal Papers', render: () => <ProfileLegalPapers profile={profile} />},
         {menuItem: 'Rating', render: () => <ProfileRatings />},
     ]
 

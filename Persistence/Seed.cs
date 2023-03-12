@@ -12,13 +12,13 @@ namespace Persistence
         public static async Task SeedData(DataContext context,
             UserManager<AppUser> userManager)
         {
-            if (!userManager.Users.Any() && !context.Rides.Any())
+            if (!userManager.Users.Any() && !context.BusRides.Any())
             {
                 var users = new List<AppUser>
                 {
                     new AppUser
                     {
-                        DisplayName = "Tony Stark",
+                        DisplayName = "Tony Starks",
                         UserName = "tony",
                         Email = "tony@test.com",
                         Bio = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
@@ -29,7 +29,7 @@ namespace Persistence
                     },
                     new AppUser
                     {
-                        DisplayName = "Steve Rogers",
+                        DisplayName = "Steven Rogers",
                         UserName = "steve",
                         Email = "steve@test.com",
                         Bio = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
@@ -40,7 +40,7 @@ namespace Persistence
                     },
                     new AppUser
                     {
-                        DisplayName = "Peter Parker",
+                        DisplayName = "Peter Parkers",
                         UserName = "peter",
                         Email = "peter@test.com",
                         Bio = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
@@ -51,7 +51,7 @@ namespace Persistence
                     },
                     new AppUser
                     {
-                        DisplayName = "Nathalie Romanoff",
+                        DisplayName = "Nathalie Romanoffs",
                         UserName = "nathalie",
                         Email = "nathalie@test.com",
                         Bio = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
@@ -62,7 +62,7 @@ namespace Persistence
                     },
                     new AppUser
                     {
-                        DisplayName = "Wanda Maximoff",
+                        DisplayName = "Wanda Maximoffs",
                         UserName = "wanda",
                         Email = "wanda@test.com",
                         Bio = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
@@ -73,7 +73,7 @@ namespace Persistence
                     },
                     new AppUser
                     {
-                        DisplayName = "Pepper Potts",
+                        DisplayName = "Peppers Potts",
                         UserName = "pepper",
                         Email = "pepper@test.com",
                         Bio = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
@@ -84,7 +84,7 @@ namespace Persistence
                     },
                     new AppUser
                     {
-                        DisplayName = "Bucky Barnes",
+                        DisplayName = "Bucky Barn",
                         UserName = "bucky",
                         Email = "bucky@test.com",
                         Bio = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
@@ -100,37 +100,85 @@ namespace Persistence
                     await userManager.CreateAsync(user, "Pa$$w0rd");
                 }
 
-                var rides = new List<Ride>
+                var busrides = new List<BusRide>
                 {
-                    new Ride
+                    new BusRide
                     {
-                        Departure = "Kobeih, Mount Lebanon",
+                        Departure = "Kola, Beirut",
                         Destination = "Aley, Mount Lebanon",
                         departureDate = DateTime.Now.AddMonths(1),
                         returnDate = DateTime.Now.AddMonths(1),
                         passengerNumber = "4",
                         Cost = "4000",
-                        Description = "Going to Aley for about 3 hours",
+                        Description = "Going to Aley",
                         BaggageCost = "0",
                         Baggage = "false",
-                        Children = "true", 
-                        Animals = "false",
-                        Smoking = "false",
-                        Attendees = new List<RideAttendee>
+                        Attendees = new List<BusAttendee>
                         {
-                            new RideAttendee
+                            new BusAttendee
                             {
                                 AppUser = users[0],
                                 IsDriver = true
                             }
                         }
                     },
+                    new BusRide
+                    {
+                        Departure = "Beirut Lebanon",
+                        Destination = "Tripoli",
+                        departureDate = DateTime.Now.AddMonths(1),
+                        returnDate = DateTime.Now.AddMonths(1),
+                        passengerNumber = "4",
+                        Cost = "4000",
+                        Description = "Going to Tripoli",
+                        BaggageCost = "0",
+                        Baggage = "false",
+                        Attendees = new List<BusAttendee>
+                        {
+                            new BusAttendee
+                            {
+                                AppUser = users[0],
+                                IsDriver = true
+                            }
+                        }
+                    }
+                };
+                
+                    var rides = new List<Ride>{
                     new Ride
                     {
                         Departure = "Tripoli, North Lebanon",
                         Destination = "Saida, South Lebanon",
-                        departureDate = DateTime.Now.AddMonths(2),
-                        returnDate = DateTime.Now.AddMonths(3),
+                        departureDate = DateTime.Now.AddYears(2),
+                        returnDate = DateTime.Now.AddYears(3),
+                        passengerNumber = "4",
+                        Cost = "70000",
+                        Description = "Going for Vaccation, returning after a month",
+                        BaggageCost = "0",
+                        Baggage = "false",
+                        Children = "true",
+                        Animals = "false",
+                        Smoking = "true",
+                        Attendees = new List<RideAttendee>
+                        {
+                            new RideAttendee
+                            {
+                                AppUser = users[0],
+                                IsDriver = true
+                            },
+                            new RideAttendee
+                            {
+                                AppUser = users[1],
+                                IsDriver = false
+                            },
+                        }
+                    },
+                    new Ride
+                    {
+                        Departure = "Tripoli, North Lebanon",
+                        Destination = "Saida, South Lebanon",
+                        departureDate = DateTime.Now.AddYears(2),
+                        returnDate = DateTime.Now.AddYears(3),
                         passengerNumber = "4",
                         Cost = "70000",
                         Description = "Going for Vaccation, returning after a month",
@@ -157,8 +205,8 @@ namespace Persistence
                     {
                         Departure = "Aley, Mount Lebanon",
                         Destination = "Beirut, Beirut",
-                        departureDate = DateTime.Now.AddMonths(-1),
-                        returnDate = DateTime.Now.AddMonths(-1),
+                        departureDate = DateTime.Now.AddYears(4),
+                        returnDate = DateTime.Now.AddYears(5),
                         passengerNumber = "4",
                         Cost = "20000",
                         Description = "Going to Beirut for about 5 hours",

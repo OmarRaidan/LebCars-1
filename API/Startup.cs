@@ -47,6 +47,7 @@ namespace API
                 .AddFluentValidation(config => 
             {
                 config.RegisterValidatorsFromAssemblyContaining<Create>();
+                config.RegisterValidatorsFromAssemblyContaining<Application.BusRides.Create>();
             });
             services.AddApplicationServices(_config);
             services.AddIdentityServices(_config);
@@ -64,7 +65,7 @@ namespace API
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
             }
 
-            // app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 

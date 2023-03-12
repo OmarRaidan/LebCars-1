@@ -13,7 +13,7 @@ export default function PhotowidgetCropper({imagePreview, setCropper} : Props)  
             src={imagePreview}
             style={{height: 200, width: '100%'}}
             initialAspectRatio={1}
-            aspectRatio={1}
+            aspectRatio={16/9}
             preview='.img-preview'
             guides={false}
             viewMode={1}

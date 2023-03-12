@@ -13,6 +13,8 @@ import { preferenceOptions } from '../../../app/common/options/preferenceOptions
 import MySelectInput from '../../../app/common/form/MySelectInput';
 import MyDateInput from '../../../app/common/form/MyDateInput';
 import { RideFormValues } from '../../../app/models/ride';
+import LegalPapers from './LegalPapers';
+
 
 export default observer(function RideForm() {
     const history = useHistory();
@@ -21,6 +23,7 @@ export default observer(function RideForm() {
     const { id } = useParams<{ id: string }>();
 
     const [ride, setRide] = useState<RideFormValues>(new RideFormValues());
+    const { profileStore : {profile}} = useStore();
 
     const validationSchema = Yup.object({
         departure: Yup.string().required('The ride departure is required'),
@@ -36,8 +39,8 @@ export default observer(function RideForm() {
         baggage: Yup.string().required(),
         baggageCost: Yup.string().required(),
     })
-
-    useEffect(() => {
+    
+    useEffect(() => {    
         if (id) loadRide(id).then(ride => setRide(new RideFormValues(ride)))
     }, [id, loadRide]);
 
@@ -58,7 +61,9 @@ export default observer(function RideForm() {
 
     return (
         <Segment clearing>
+            <LegalPapers />
             <Header content='Ride Details' large color='teal' />
+            {profile?.driverLiscences?.length === 0 || profile?.criminalRecords?.length ===0  ? <></> :
             <Formik 
                 validationSchema={validationSchema}
                 enableReinitialize 
@@ -92,15 +97,16 @@ export default observer(function RideForm() {
                             <MySelectInput options={preferenceOptions} placeholder='Are Pets Allowed?'  name='animals'  />
                             <MySelectInput options={preferenceOptions} placeholder='Are Baggage Allowed?'  name='baggage'  />
                             <MyTextInput placeholder='Cost per Baggage'  name='baggageCost' icon='users icon'  />
+                        
 
                             <Button 
                                 disabled={isSubmitting || !dirty || !isValid}
                                 loading={isSubmitting} floated='right' 
-                                positive type='submit' content='Submit' />
+                                positive type='submit' content='Submit'/>
                             <Button as={Link} to='/rides' floated='right' type='submit' content='Cancel' />
                         </Form>
                     )}
-            </Formik>
+            </Formik>}
         </Segment>
     )
 })

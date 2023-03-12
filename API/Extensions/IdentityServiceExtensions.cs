@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Persistence;
+using System;
 
 namespace API.Extensions
 {
@@ -35,7 +36,9 @@ namespace API.Extensions
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = key,
                     ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
                 };
                 opt.Events = new JwtBearerEvents
                 {
@@ -60,7 +63,16 @@ namespace API.Extensions
                     policy.Requirements.Add(new IsHostRequirement());
                 });
             });
+
+            services.AddAuthorization(opt =>
+            {
+                opt.AddPolicy("IsBusDriver", policy =>
+                {
+                    policy.Requirements.Add(new BusIsHostRequirement.IsHostRequirement());
+                });
+            });
             services.AddTransient<IAuthorizationHandler, IsHostRequirementHandler>();
+            services.AddTransient<IAuthorizationHandler, BusIsHostRequirement.IsHostRequirementHandler>();
             services.AddScoped<TokenService>();
 
             return services;

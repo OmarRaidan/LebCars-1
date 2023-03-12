@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Button, Container, Dropdown, Image, Menu } from 'semantic-ui-react';
+import { Container, Dropdown, Image, Menu } from 'semantic-ui-react';
 import { useStore } from '../stores/store';
 import './navbar.css';
 
@@ -16,9 +16,15 @@ export default observer(function NavBar() {
 
                 <Menu.Item as={NavLink} to='/rides' name='Rides' />
                 {/* <Menu.Item as={NavLink} to='/errors' name='errors' /> */}
+                <Menu.Item as={NavLink} to='/busrides' name='Bus Rides'/>
                 <Menu.Item >
                     {/* <Button className='ui inverted button' as={NavLink} to='/createRide' content='Create Ride' /> */}
-                    <Button id="homeButton" as={NavLink} to='/createRide' content='Create Ride' />
+                    <Dropdown pointing='top left' text='Create'>
+                <Dropdown.Menu>
+                    <Dropdown.Item as={NavLink} to='/createRide' content='Car Ride' />
+                    <Dropdown.Item as={NavLink} to='/createBusRide' content='Bus Ride' />
+                </Dropdown.Menu>
+                </Dropdown>
                 </Menu.Item>
                 <Menu.Item className='right menu'>
                     <Image src={user?.image || 'assets/user.png'} avatar spaced='right' />

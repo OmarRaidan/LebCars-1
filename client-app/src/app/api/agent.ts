@@ -7,7 +7,8 @@ import { User, UserFormValues } from '../models/user';
 import { Photo, Profile, UserRide } from '../models/profile';
 import { PaginatedResult } from '../models/pagination';
 import { GivenRating } from '../models/Rating';
-
+import { BusRide, BusRideFormValues } from '../models/busRide';
+import { Liscence } from '../models/driverLiscence';
 
 const sleep = (delay: number) => {
     return new Promise((resolve) => {
@@ -32,7 +33,7 @@ axios.interceptors.response.use(async response => {
     }
     return response;
 }, (error: AxiosError) => {
-    const { data, status, config } = error.response!;
+    const { data, status, config, headers } = error.response!;
     switch (status) {
         case 400:
             if(typeof data ==='string') {
@@ -52,7 +53,10 @@ axios.interceptors.response.use(async response => {
             }
             break;
         case 401:
-            toast.error('unauthorized');
+            if(status === 401 && headers['www-authenticate'].startsWith('Bearer error="invalid_token"')){
+                store.userStore.logout();
+                toast.error('Session Expired - please login again');
+            }
             break;
         case 404:
             history.push('/not-found');
@@ -71,7 +75,7 @@ const requests = {
     get: <T>(url: string) => axios.get<T>(url).then(responseBody),
     post: <T>(url: string, body: {}) => axios.post<T>(url, body).then(responseBody),
     put: <T>(url: string, body: {}) => axios.put<T>(url, body).then(responseBody),
-    del: <T>(url: string) => axios.delete<T>(url).then(responseBody),
+    del: <T>(url: string) => axios.delete<T>(url).then(responseBody), 
 }
 
 const Rides = {
@@ -84,14 +88,26 @@ const Rides = {
     attend: (id: string) => requests.post<void>(`/rides/${id}/attend`, {})
 }
 
+const BusRides = {
+    buslist: (params: URLSearchParams) => axios.get<PaginatedResult<BusRide[]>>('/Bus', { params })
+    .then(responseBody),
+    details: (id: string) => requests.get<BusRide>(`Bus/${id}`),
+    buscreate: (ride: BusRideFormValues) => requests.post<void>('/Bus', ride),
+    update: (ride: BusRideFormValues) => requests.put<void>(`/Bus/${ride.id}`, ride),
+    delete: (id: string) => requests.del<void>(`/Bus/${id}`),
+    attend: (id: string) => requests.post<void>(`/Bus/${id}/attend`, {})
+}
+
 const Account = {
     current: () => requests.get<User>('/account'),
     login: (user: UserFormValues) => requests.post<User>('/account/login', user),
-    register: (user: UserFormValues) => requests.post<User>('/account/register', user)
+    register: (user: UserFormValues) => requests.post<User>('/account/register', user),
+    fbLogin: (accessToken: string) => requests.post<User>(`/account/fbLogin?accessToken=${accessToken}`, {}),
+    refreshToken: () => requests.post<User>(`/account/refreshToken`,{})
 }
 
 const Profiles ={
-    get: (username: string) => requests.get<Profile>(`/profiles/${username}`),
+    get: (username?: string) => requests.get<Profile>(`/profiles/${username}`),
     uploadPhoto: (file: Blob) => {
         let formData = new FormData();
         formData.append('File', file);
@@ -107,15 +123,44 @@ const Profiles ={
         requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`),
     listRides: (username: string, predicate: string) =>
         requests.get<UserRide[]>(`/profiles/${username}/rides?predicate=${predicate}`),
+
+    listBusRides: (username: string, predicate: string) =>
+        requests.get<UserRide[]>(`/profiles/${username}/busrides?predicate=${predicate}`),
+        
     listRatings: (username: string, predicate: string) =>
         requests.get<GivenRating[]>(`/profiles/${username}/rating?predicate=${predicate}`)
     
 }
 
+const DriverLiscences = {
+    uploadPhoto: (file: Blob) => {
+        let formData = new FormData();
+        formData.append('File', file);
+        return axios.post<Liscence>('DriverLiscence', formData, {
+            headers: {'Content-type': 'multipart/form-data'}
+        })
+    },
+    deletePhoto: (id: string) => requests.del(`/DriverLiscence/${id}`)
+}
+
+const CriminalRecords = {
+    uploadPhoto: (file: Blob) => {
+        let formData = new FormData();
+        formData.append('File', file);
+        return axios.post<Liscence>('CriminalRecord', formData, {
+            headers: {'Content-type': 'multipart/form-data'}
+        })
+    },
+    deletePhoto: (id: string) => requests.del(`/CriminalRecord/${id}`)
+}
+
 const agent = {
     Rides,
+    BusRides,
     Account,
-    Profiles
+    Profiles,
+    DriverLiscences,
+    CriminalRecords
 }
 
 export default agent;

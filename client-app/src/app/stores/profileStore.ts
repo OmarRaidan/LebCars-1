@@ -1,6 +1,7 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import agent from "../api/agent";
-import { Photo, Profile, UserRide } from "../models/profile";
+import { Liscence } from "../models/driverLiscence";
+import { Photo, Profile, Records, UserRide } from "../models/profile";
 import { store } from "./store";
 
 export default class ProfileStore {
@@ -13,6 +14,7 @@ export default class ProfileStore {
     activeTab = 0;
     userRides: UserRide[] = [];
     loadingRides = false;
+    //liscence?: Liscence | null;
 
     constructor() {
         makeAutoObservable(this);
@@ -41,7 +43,7 @@ export default class ProfileStore {
         return false;
     }
 
-    loadProfile = async (username: string) => {
+    loadProfile = async (username?: string) => {
         this.loadingProfile = true;
         try {
             const profile = await agent.Profiles.get(username);
@@ -183,5 +185,75 @@ export default class ProfileStore {
             })
         }
     }
-
+    uploadLiscence = async (file: Blob) => {
+        this.uploading = true;
+        try {
+            const response = await agent.DriverLiscences.uploadPhoto(file);
+            const photo = response.data;
+            console.log(photo);
+            runInAction(()=>{
+                if (this.profile){
+                    this.profile.driverLiscences?.push(photo);
+                    if(store.userStore.user)  {
+                        //store.userStore.setLiscence(photo);
+                }}
+                
+                this.uploading = false;
+            } )
+            }
+         catch (error) {   
+            console.log(error);
+            runInAction(() => this.uploading = false);
+        }
+    }
+    deleteLiscence = async (photo: Liscence) => {
+        this.loading = true;
+        try {
+            await agent.DriverLiscences.deletePhoto(photo.id);
+            runInAction(() => {
+                if (this.profile) {
+                    this.profile.driverLiscences = this.profile.driverLiscences?.filter(p => p.id !== photo.id);
+                    this.loading = false;
+                }
+            })
+        } catch (error) {
+            runInAction(() => this.loading = false);
+            console.log(error);
+        }
+    }
+    uploadRecord = async (file: Blob) => {
+        this.uploading = true;
+        try {
+            const response = await agent.CriminalRecords.uploadPhoto(file);
+            const photo = response.data;
+            runInAction(()=>{
+                if (this.profile){
+                    this.profile.criminalRecords?.push(photo);
+                    if(store.userStore.user)  {
+                        //store.userStore.setRecord(photo);
+                        
+                    }}
+                this.uploading = false;
+            } )
+            }
+         catch (error) {   
+            console.log(error);
+            runInAction(() => this.uploading = false);
+        }
+    }
+    deleteRecord = async (photo: Records) => {
+        this.loading = true;
+        try {
+            await agent.CriminalRecords.deletePhoto(photo.id);
+            runInAction(() => {
+                if (this.profile) {
+                    this.profile.criminalRecords = this.profile.criminalRecords?.filter(p => p.id !== photo.id);
+                    this.loading = false;
+                }
+            })
+        } catch (error) {
+            runInAction(() => this.loading = false);
+            console.log(error);
+        }
+    }
 }

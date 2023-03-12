@@ -10,6 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Persistence;
+using System;
+using Infrastructure.DriverLiscences;
+using Infrastructure.CriminalRecords;
 
 namespace API.Extensions
 {
@@ -34,6 +37,7 @@ namespace API.Extensions
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials()
+                        .WithExposedHeaders("WWW-Authenticate", "Pagination")
                         .WithOrigins("http://localhost:3000");
                 });
             });
@@ -42,6 +46,10 @@ namespace API.Extensions
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddScoped<IPhotoAccessor, PhotoAccessor>();
             services.AddScoped<IPhotoAccessor, PhotoAccessor>();
+            services.AddScoped<IDriverLiscenceAccessor, LiscenceAccessor>();
+            services.AddScoped<IDriverLiscenceAccessor, LiscenceAccessor>();
+            services.AddScoped<ICriminalRecordAccessor, RecordsAccessor>();
+            services.AddScoped<ICriminalRecordAccessor, RecordsAccessor>();
             services.Configure<CloudinarySettings>(config.GetSection("Cloudinary"));
             services.AddSignalR();
             

@@ -1,0 +1,61 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Application.Core;
+using Application.Interfaces;
+using AutoMapper.QueryableExtensions;
+using AutoMapper;
+using MediatR;
+using Persistence;
+
+namespace Application.BusRides
+{
+    public class List
+    {
+        public class Query : IRequest<Result<PagedList<BusDto>>>
+        {
+            public BusParams Params { get; set; }
+        }
+
+        public class Handler : IRequestHandler<Query, Result<PagedList<BusDto>>>
+        {
+            private readonly DataContext _context;
+            private readonly IMapper _mapper;
+            private readonly IUserAccessor _userAccessor;
+            public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor)
+            {
+                _userAccessor = userAccessor;
+                _mapper = mapper;
+                _context = context;
+            }
+
+            public async Task<Result<PagedList<BusDto>>> Handle(Query request, CancellationToken cancellationToken)
+            {
+                var query = _context.BusRides
+                    .Where(d => d.departureDate >= request.Params.StartDate | d.returnDate >= request.Params.StartDate)
+                    .OrderBy(d => d.departureDate)
+                    .ProjectTo<BusDto>(_mapper.ConfigurationProvider,
+                        new { currentUsername = _userAccessor.GetUsername() })
+                    .AsQueryable();
+
+                if (request.Params.IsGoing && !request.Params.IsDriver)
+                {
+                    query = query.Where(x => x.Attendees.Any(a => a.Username == _userAccessor.GetUsername()));
+                }
+
+                if (request.Params.IsDriver && !request.Params.IsGoing)
+                {
+                    query = query.Where(x => x.DriverUsername == _userAccessor.GetUsername());
+                }
+
+                return Result<PagedList<BusDto>>.Success(
+                    await PagedList<BusDto>.CreateAsync(query, request.Params.PageNumber,
+                        request.Params.PageSize)
+                );
+                
+            }
+        }
+    }
+}

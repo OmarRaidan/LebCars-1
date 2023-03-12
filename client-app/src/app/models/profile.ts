@@ -1,3 +1,4 @@
+
 import { User } from "./user";
 
 export interface Profile {
@@ -15,6 +16,8 @@ export interface Profile {
     following: boolean;
     bio?: string;
     photos?: Photo[];
+    driverLiscences?: Liscence[];
+    criminalRecords?: Records[];
 }
 
 export class Profile implements Profile {
@@ -23,6 +26,7 @@ export class Profile implements Profile {
         this.username = user.username;
         this.displayName = user.displayName;
         this.image = user.image;
+        this.driverLiscences = user.liscence;
     }
 }
 
@@ -38,4 +42,14 @@ export interface UserRide {
     destination: string;
     departureDate: Date;
     returnDate: Date;
+}
+
+export interface Liscence {
+    id: string;
+    url: string;
+}
+
+export interface Records{
+    id: string;
+    url: string;
 }

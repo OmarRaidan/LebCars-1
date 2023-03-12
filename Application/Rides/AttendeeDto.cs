@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using Domain;
+
 namespace Application.Rides
 {
     public class AttendeeDto
@@ -14,6 +17,7 @@ namespace Application.Rides
         public bool Following { get; set; }
         public int FollowersCount { get; set; }
         public int FollowingCount { get; set; }
-
+        public ICollection<DriverLiscence> DriverLiscences { get; set; }
+        public ICollection<Domain.CriminalRecord> CriminalRecords { get; set; }
     }
 }

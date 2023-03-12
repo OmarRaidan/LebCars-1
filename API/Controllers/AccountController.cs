@@ -8,10 +8,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System.Net.Http;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using System;
 
 namespace API.Controllers
 {
-    [AllowAnonymous]
     [ApiController]
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
@@ -20,16 +25,25 @@ namespace API.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly TokenService _tokenService;
+        private readonly IConfiguration _config;
+        private readonly HttpClient _hTTPClient;
 
         public AccountController(UserManager<AppUser> userManager,
-        SignInManager<AppUser> signInManager, TokenService tokenService)
+        SignInManager<AppUser> signInManager, TokenService tokenService,
+        IConfiguration config)
         {
+            _config = config;
             _tokenService = tokenService;
             _signInManager = signInManager;
             _userManager = userManager;
+            _hTTPClient = new HttpClient
+            {
+                BaseAddress = new System.Uri("https://graph.facebook.com")
+            };
 
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
@@ -42,12 +56,14 @@ namespace API.Controllers
 
             if (result.Succeeded)
             {
+                await SetRefreshToken(user);
                 return CreateUserObject(user);
             }
 
             return Unauthorized();
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
@@ -73,6 +89,7 @@ namespace API.Controllers
 
             if (result.Succeeded)
             {
+                await SetRefreshToken(user);
                 // var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 // var confirmationLink = Url.Action("ConfirmEmail", "Account", new {userId = user.Id, token = token}, Request.Scheme);
                 return CreateUserObject(user);
@@ -90,6 +107,92 @@ namespace API.Controllers
             return CreateUserObject(user);
         }
 
+        [AllowAnonymous]
+        [HttpPost("fbLogin")]
+        public async Task<ActionResult<UserDto>> FacebookLogin(string accessToken)
+        {
+            var fbVerifyKeys = _config["Facebook:AppID"] + "|" + _config["Facebook:AppSecret"];
+
+            var VerifyToken = await _hTTPClient
+                .GetAsync($"debug_token?input_token={accessToken}&access_token={fbVerifyKeys}");
+            
+            if(!VerifyToken.IsSuccessStatusCode) return Unauthorized();
+            
+            var fbUrl = $"me?access_token={accessToken}&fields=name,email,picture.width(100).height(100)";
+
+            var response = await _hTTPClient.GetAsync(fbUrl);
+
+            if(!response.IsSuccessStatusCode) return Unauthorized();
+
+            var fbInfo = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync());
+
+            var username = (string)fbInfo.id;
+
+            var user = await _userManager.Users.Include(p => p.Photos)
+                .FirstOrDefaultAsync(x => x.UserName == username);
+            if(user!=null) return CreateUserObject(user);
+
+            user = new AppUser
+            {
+                DisplayName = (string)fbInfo.name,
+                Email = (string)fbInfo.email,
+                UserName = (string)fbInfo.id,
+                Photos = new List<Photo>
+                {
+                    new Photo
+                    {
+                        Id = "fb_" + (string)fbInfo.id,
+                        Url = (string)fbInfo.picture.data.url, 
+                        IsMain = true
+                    }
+                }
+            };
+
+            var result = await _userManager.CreateAsync(user);
+
+            if(!result.Succeeded) return BadRequest("Problem creating user account");
+
+            await SetRefreshToken(user);
+
+            return CreateUserObject(user);
+        }
+
+        [Authorize]
+        [HttpPost("refreshToken")]
+        public async Task<ActionResult<UserDto>> RefreshToken()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            var user = await _userManager.Users
+                .Include(r => r.RefreshTokens)
+                .Include(p => p.Photos)
+                .FirstOrDefaultAsync(x => x.UserName == User.FindFirstValue(ClaimTypes.Name));
+
+            if(user == null) return Unauthorized();
+
+            var oldToken = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken);
+
+            if(oldToken != null && !oldToken.IsActive) return Unauthorized();
+
+            return CreateUserObject(user); 
+        }
+
+        private async Task SetRefreshToken(AppUser user)
+        {
+            var refreshToken = _tokenService.GenerateRefreshToken();
+
+            user.RefreshTokens.Add(refreshToken);
+            await _userManager.UpdateAsync(user);
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,//refresh token not accessable via javascript 
+                Expires = DateTime.UtcNow.AddDays(7),//but we only needed to access the refreshtoken 
+                                //in the server so we send it via a cookie so client will send this with every request 
+            };
+
+            Response.Cookies.Append("refreshToken",refreshToken.Token, cookieOptions);
+        }
         private UserDto CreateUserObject(AppUser user)
         {
             return new UserDto

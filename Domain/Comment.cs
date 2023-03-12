@@ -8,6 +8,7 @@ namespace Domain
         public string Body { get; set; }
         public AppUser Author { get; set; }
         public Ride Ride { get; set; }
+        public BusRide BusRide { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
     

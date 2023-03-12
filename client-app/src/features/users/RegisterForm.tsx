@@ -29,7 +29,7 @@ export default observer(function RegisterForm() {
                     <MyTextInput name='displayName' placeholder='Display Name' icon='users icon' />
                     <MyTextInput name='username' placeholder='Username' icon='user icon' />
                     <MyTextInput name='email' placeholder='E-mail address' icon='envelope icon' />
-                    <MyTextInput name='password' placeholder='Password' type='password' icon="lock icon"/>
+                    <MyTextInput name='password' placeholder='Password (must be atleast 8 characters)' type='password' icon="lock icon"/>
                     <ErrorMessage
                         name='error' render={() => 
                         <ValidationErrors errors={errors.error}/>

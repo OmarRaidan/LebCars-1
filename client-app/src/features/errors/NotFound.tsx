@@ -13,6 +13,9 @@ export default function NotFound() {
                 <Button as={Link} to='/rides' primary>
                     Return to rides page
                 </Button>
+                <Button as={Link} to='/busRides' primary>
+                    Return to bus rides page
+                </Button>
             </Segment.Inline>
         </Segment>
     )

@@ -98,6 +98,65 @@ namespace Persistence.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("Domain.BusAttendee", b =>
+                {
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("RideId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDriver")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("AppUserId", "RideId");
+
+                    b.HasIndex("RideId");
+
+                    b.ToTable("BusAttendees");
+                });
+
+            modelBuilder.Entity("Domain.BusRide", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Baggage")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BaggageCost")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Cost")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Departure")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Destination")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("departureDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("passengerNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("returnDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BusRides");
+                });
+
             modelBuilder.Entity("Domain.Comment", b =>
                 {
                     b.Property<int>("Id")
@@ -110,6 +169,9 @@ namespace Persistence.Migrations
                     b.Property<string>("Body")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("BusRideId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
@@ -120,9 +182,47 @@ namespace Persistence.Migrations
 
                     b.HasIndex("AuthorId");
 
+                    b.HasIndex("BusRideId");
+
                     b.HasIndex("RideId");
 
                     b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("Domain.CriminalRecord", b =>
+                {
+                    b.Property<string>("ID")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("CriminalRecord");
+                });
+
+            modelBuilder.Entity("Domain.DriverLiscence", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("DriverLiscences");
                 });
 
             modelBuilder.Entity("Domain.Photo", b =>
@@ -165,6 +265,31 @@ namespace Persistence.Migrations
                     b.HasIndex("TargetId");
 
                     b.ToTable("UserRatings");
+                });
+
+            modelBuilder.Entity("Domain.Refreshtoken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("Revoked")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("Refreshtoken");
                 });
 
             modelBuilder.Entity("Domain.Ride", b =>
@@ -378,11 +503,35 @@ namespace Persistence.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("Domain.BusAttendee", b =>
+                {
+                    b.HasOne("Domain.AppUser", "AppUser")
+                        .WithMany("BusRides")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.BusRide", "BusRide")
+                        .WithMany("Attendees")
+                        .HasForeignKey("RideId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("BusRide");
+                });
+
             modelBuilder.Entity("Domain.Comment", b =>
                 {
                     b.HasOne("Domain.AppUser", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorId");
+
+                    b.HasOne("Domain.BusRide", "BusRide")
+                        .WithMany("Comments")
+                        .HasForeignKey("BusRideId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Domain.Ride", "Ride")
                         .WithMany("Comments")
@@ -391,7 +540,23 @@ namespace Persistence.Migrations
 
                     b.Navigation("Author");
 
+                    b.Navigation("BusRide");
+
                     b.Navigation("Ride");
+                });
+
+            modelBuilder.Entity("Domain.CriminalRecord", b =>
+                {
+                    b.HasOne("Domain.AppUser", null)
+                        .WithMany("CriminalRecords")
+                        .HasForeignKey("AppUserId");
+                });
+
+            modelBuilder.Entity("Domain.DriverLiscence", b =>
+                {
+                    b.HasOne("Domain.AppUser", null)
+                        .WithMany("DriverLiscences")
+                        .HasForeignKey("AppUserId");
                 });
 
             modelBuilder.Entity("Domain.Photo", b =>
@@ -418,6 +583,15 @@ namespace Persistence.Migrations
                     b.Navigation("Observer");
 
                     b.Navigation("Target");
+                });
+
+            modelBuilder.Entity("Domain.Refreshtoken", b =>
+                {
+                    b.HasOne("Domain.AppUser", "AppUser")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("AppUserId");
+
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("Domain.RideAttendee", b =>
@@ -511,6 +685,12 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.AppUser", b =>
                 {
+                    b.Navigation("BusRides");
+
+                    b.Navigation("CriminalRecords");
+
+                    b.Navigation("DriverLiscences");
+
                     b.Navigation("Followers");
 
                     b.Navigation("Followings");
@@ -521,7 +701,16 @@ namespace Persistence.Migrations
 
                     b.Navigation("RatingsHeWasGiven");
 
+                    b.Navigation("RefreshTokens");
+
                     b.Navigation("Rides");
+                });
+
+            modelBuilder.Entity("Domain.BusRide", b =>
+                {
+                    b.Navigation("Attendees");
+
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("Domain.Ride", b =>

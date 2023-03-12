@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Container } from 'semantic-ui-react';
 import NavBar from './NavBar';
 import RideDashboard from '../../features/rides/dashboard/RideDashboard';
@@ -16,6 +16,10 @@ import { useStore } from '../stores/store';
 import LoadingComponent from './LoadingComponent';
 import ModalContainer from '../common/models/ModalContainer';
 import ProfilePage from '../../features/profiles/ProfilePage';
+import BusForm from '../../features/busrides/form/BusForm';
+import BusRideDetails from '../../features/busrides/details/BusRideDetails';
+import BusDashboard from '../../features/busrides/dashboard/BusDashboard';
+import LegalPapers from '../../features/rides/form/LegalPapers';
 
 function App() {
   const location = useLocation();
@@ -25,7 +29,7 @@ function App() {
     if (commonStore.token) {
       userStore.getUser().finally(() => commonStore.setAppLoaded());
     } else {
-      commonStore.setAppLoaded();
+      userStore.getFacebookLoginStatus().then(() => commonStore.setAppLoaded());
     }
   }, [commonStore, userStore])
 
@@ -47,6 +51,10 @@ function App() {
                 <Route exact path='/rides' component={RideDashboard} />
                 <Route path='/rides/:id' component={RideDetails} />
                 <Route key={location.key} path={['/createRide', '/manage/:id']} component={RideForm} />
+                <Route path='/legalPapers' component={LegalPapers} />
+                <Route exact path='/busRides' component={BusDashboard} />
+                <Route path='/busRides/:id' component={BusRideDetails} />
+                <Route key={location.key} path={['/createBusRide', '/managebus/:id']} component={BusForm} />
                 <Route path='/profiles/:username' component={ProfilePage} />
                 <Route path='/errors' component={TestErrors} />
                 <Route path='/server-error' component={ServerError} />

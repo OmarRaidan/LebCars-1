@@ -6,11 +6,12 @@ interface Props {
 }
 
 export default function ValidationErrors({errors}: Props) {
+    console.log(errors);
     return (
         <Message error>
             {errors && (
                 <Message.List>
-                    {errors.map((err: any, i: any) => (
+                    {(errors).map( (err: any, i: any) => (
                         <Message.Item key={i}>{err}</Message.Item>
                     ))}
                 </Message.List>

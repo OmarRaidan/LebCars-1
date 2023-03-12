@@ -24,5 +24,17 @@ namespace API.Controllers
             return HandleResult(await Mediator.Send(new ListRides.Query
             { Username = username, Predicate = predicate }));
         }
+
+        [HttpGet("{username}/busrides")]
+        public async Task<IActionResult> GetUserBusRides(string username, string predicate)
+        {
+            return HandleResult(await Mediator.Send(new ListBusRides.Query
+            { Username = username, Predicate = predicate }));
+        }
+
+        /*[HttpGet("{username}/liscence")]
+        public async Task<IActionResult> GetUserLiscences(string username, ){
+            return HandleResult(await Mediator.Send(null));
+        }*/
     }
 }

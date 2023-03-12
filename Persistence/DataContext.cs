@@ -16,7 +16,9 @@ namespace Persistence
         public DbSet<Comment> Comments { get; set; }
         public DbSet<UserFollowing> UserFollowings { get; set; }
         public DbSet<Rating> UserRatings { get; set; }
-        
+        public DbSet<BusRide> BusRides { get; set; }
+        public DbSet<BusAttendee> BusAttendees { get; set; }        
+        public DbSet<DriverLiscence> DriverLiscences { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -34,8 +36,25 @@ namespace Persistence
                 .WithMany(a => a.Attendees)
                 .HasForeignKey(aa => aa.RideId);
 
+            builder.Entity<BusAttendee>(x => x.HasKey(aa => new { aa.AppUserId, aa.RideId }));
+
+            builder.Entity<BusAttendee>()
+                .HasOne(u => u.AppUser)
+                .WithMany(a => a.BusRides)
+                .HasForeignKey(aa => aa.AppUserId);
+
+            builder.Entity<BusAttendee>()
+                .HasOne(u => u.BusRide)
+                .WithMany(a => a.Attendees)
+                .HasForeignKey(aa => aa.RideId);
+
             builder.Entity<Comment>()
                 .HasOne(a => a.Ride)
+                .WithMany(c => c.Comments)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            builder.Entity<Comment>()
+                .HasOne(a => a.BusRide)
                 .WithMany(c => c.Comments)
                 .OnDelete(DeleteBehavior.Cascade);
 

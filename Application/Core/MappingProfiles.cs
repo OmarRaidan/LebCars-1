@@ -4,6 +4,7 @@ using Application.Comments;
 using Application.Profiles;
 using Domain;
 using Application.Ratings;
+using Application.BusRides;
 
 namespace Application.Core
 {
@@ -16,6 +17,7 @@ namespace Application.Core
             CreateMap<Ride, RideDto>()
                 .ForMember(d => d.DriverUsername, o => o.MapFrom(s => s.Attendees
                     .FirstOrDefault(x => x.IsDriver).AppUser.UserName));
+
             CreateMap<RideAttendee, AttendeeDto>()
                 .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.AppUser.DisplayName))
                 .ForMember(d => d.Username, o => o.MapFrom(s => s.AppUser.UserName))
@@ -26,20 +28,46 @@ namespace Application.Core
                 .ForMember(d => d.CarNumber, o => o.MapFrom(s => s.AppUser.CarNumber))
                 .ForMember(d => d.PhoneNumber, o => o.MapFrom(s => s.AppUser.PhoneNumber))
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.AppUser.Photos.FirstOrDefault(x => x.IsMain).Url))
+                .ForMember(d => d.DriverLiscences, o => o.MapFrom(s => s.AppUser.DriverLiscences))
+                .ForMember(d => d.CriminalRecords, o => o.MapFrom(s => s.AppUser.CriminalRecords))
                 .ForMember(d => d.FollowersCount, o => o.MapFrom(s => s.AppUser.Followers.Count))
                 .ForMember(d => d.FollowingCount, o => o.MapFrom(s => s.AppUser.Followings.Count))
                 .ForMember(d => d.Following,
                     o => o.MapFrom(s => s.AppUser.Followers.Any(x => x.Observer.UserName == currentUsername)));
+
+            CreateMap<BusRide, BusRide>();
+            CreateMap<BusRide, BusDto>()
+                .ForMember(d => d.DriverUsername, o => o.MapFrom(s => s.Attendees
+                    .FirstOrDefault(x => x.IsDriver).AppUser.UserName));
+
+            CreateMap<BusAttendee, BusAttendeeDto>()
+                .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.AppUser.DisplayName))
+                .ForMember(d => d.Username, o => o.MapFrom(s => s.AppUser.UserName))
+                .ForMember(d => d.Bio, o => o.MapFrom(s => s.AppUser.Bio))
+                .ForMember(d => d.Age, o => o.MapFrom(s => s.AppUser.Age))
+                .ForMember(d => d.Gender, o => o.MapFrom(s => s.AppUser.Gender))
+                .ForMember(d => d.CarModel, o => o.MapFrom(s => s.AppUser.CarModel))
+                .ForMember(d => d.CarNumber, o => o.MapFrom(s => s.AppUser.CarNumber))
+                .ForMember(d => d.PhoneNumber, o => o.MapFrom(s => s.AppUser.PhoneNumber))
+                .ForMember(d => d.Image, o => o.MapFrom(s => s.AppUser.Photos.FirstOrDefault(x => x.IsMain).Url))
+                .ForMember(d => d.DriverLiscences, o => o.MapFrom(s => s.AppUser.DriverLiscences))
+                .ForMember(d => d.CriminalRecords, o => o.MapFrom(s => s.AppUser.CriminalRecords))
+                .ForMember(d => d.FollowersCount, o => o.MapFrom(s => s.AppUser.Followers.Count))
+                .ForMember(d => d.FollowingCount, o => o.MapFrom(s => s.AppUser.Followings.Count))
+                .ForMember(d => d.Following,
+                    o => o.MapFrom(s => s.AppUser.Followers.Any(x => x.Observer.UserName == currentUsername)));
+
             CreateMap<AppUser, Profiles.Profile>()
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.Photos.FirstOrDefault(x => x.IsMain).Url))
-                .ForMember(d => d.FollowersCount, o => o.MapFrom(s => s.Followers.Count))
                 .ForMember(d => d.FollowingCount, o => o.MapFrom(s => s.Followings.Count))
                 .ForMember(d => d.Following,
                     o => o.MapFrom(s => s.Followers.Any(x => x.Observer.UserName == currentUsername)));
+
             CreateMap<Comment, CommentDto>()
                 .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.Author.DisplayName))
                 .ForMember(d => d.Username, o => o.MapFrom(s => s.Author.UserName))
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.Author.Photos.FirstOrDefault(x => x.IsMain).Url));
+
             CreateMap<Rating, RatingDto>()
                 .ForMember(d => d.Feedback, o => o.MapFrom(s => s.Feedback))
                 .ForMember(d => d.RatingValue, o => o.MapFrom(s => s.RatingValue))
@@ -47,6 +75,7 @@ namespace Application.Core
                 .ForMember(d => d.ObserverUsername, o => o.MapFrom(s => s.Observer.UserName))
                 .ForMember(d => d.TargetDisplayName, o => o.MapFrom(s => s.Target.DisplayName))
                 .ForMember(d => d.TargetUsername, o => o.MapFrom(s => s.Target.UserName));
+
             CreateMap<RideAttendee, UserRideDto>()
                 .ForMember(d => d.Id, o => o.MapFrom(s => s.Ride.Id))
                 .ForMember(d => d.Departure, o => o.MapFrom(s => s.Ride.Departure))
@@ -55,6 +84,15 @@ namespace Application.Core
                 .ForMember(d => d.returnDate, o => o.MapFrom(s => s.Ride.returnDate))
                 .ForMember(d => d.DriverUsername, o => o.MapFrom(s => 
                     s.Ride.Attendees.FirstOrDefault(x => x.IsDriver).AppUser.UserName));
+                    
+            CreateMap<BusAttendee, UserRideDto>()
+                .ForMember(d => d.Id, o => o.MapFrom(s => s.BusRide.Id))
+                .ForMember(d => d.Departure, o => o.MapFrom(s => s.BusRide.Departure))
+                .ForMember(d => d.Destination, o => o.MapFrom(s => s.BusRide.Destination))
+                .ForMember(d => d.departureDate, o => o.MapFrom(s => s.BusRide.departureDate))
+                .ForMember(d => d.returnDate, o => o.MapFrom(s => s.BusRide.returnDate))
+                .ForMember(d => d.DriverUsername, o => o.MapFrom(s => 
+                    s.BusRide.Attendees.FirstOrDefault(x => x.IsDriver).AppUser.UserName));
         }
     }
 }
